@@ -67,7 +67,7 @@ def check_password():
 
 if check_password():
 
-    df = pd.read_csv("./data/join.csv", index_col=False)
+    df = pd.read_csv("https://storage.googleapis.com/crec_data/join.csv", index_col=False)
     @st.experimental_singleton
     def get_data() -> pd.DataFrame:
         start = time.time()
@@ -78,7 +78,7 @@ if check_password():
 
     addresses = df['address'].values#.tolist()
 
-    input = st.selectbox("Enter Address or Select From Dropdown", addresses)
+    input = st.selectbox("Enter Address or Select From Dropdown", addresses, index=10)
 
     @st.experimental_memo
     def search_data(search_term: str) -> pd.DataFrame:
@@ -117,18 +117,7 @@ if check_password():
             replace.text("Reading in tax records...")
             time.sleep(0.3)
             replace.text("Reading in investor records...")
-            time.sleep(0.3)
-            replace.text("Reading in property records...")
-            time.sleep(0.3)
-            replace.text("Reading in city data...")
-            time.sleep(0.3)
-            replace.text("Transforming data...")
-            time.sleep(0.3)
-            replace.text('Mapping property...')
-            time.sleep(0.3)
-            replace.text('Recommendations, Map, & Analysis ready...')
-            time.sleep(0.5)
-            replace.empty()
+           
             
             def unpack(dict_str, key):
                 try:
@@ -153,7 +142,7 @@ if check_password():
                 scores_list = [x['euclidean_distance'] for x in res]
                 
                 for i,el in enumerate(ids_list):
-                    bdf = prop_map[prop_map['id']== el]
+                    bdf = df_total[df_total['id']== el]
                     #print(bdf)
                     bid = bdf['buyerId'].values[0]
                     inv_city = bdf['OwnerCity'].values[0]
@@ -166,15 +155,27 @@ if check_password():
                     results_list.append([inv_name,inv_city,inv_state,inv_email,distance])
                 return results_list
 
-            inv_loc = './data/investor_map.csv'
-            join_location = './data/join.csv'
-            txn_sim_loc = './data/transaction_euclidean_sim_result.csv'
+            inv_loc = 'https://storage.googleapis.com/crec_data/investor_map.csv'
+            prop_map_location = 'https://storage.googleapis.com/crec_data/join.csv'
+            txn_sim_loc = 'https://storage.googleapis.com/crec_data/region_transaction_euclidean_sim_result_top10.csv'
 
-            txn_sim = pd.read_csv('./data/transaction_euclidean_sim_result.csv')
-
+            txn_sim = pd.read_csv(txn_sim_loc)
+            df_total = pd.read_csv('https://storage.googleapis.com/crec_data/front_end_total.csv')
             investor_map = pd.read_csv(inv_loc)
 
-            prop_map = pd.read_csv(join_location)
+            prop_map = pd.read_csv(prop_map_location)
+
+            
+            replace.text("Reading in property records...")
+            time.sleep(0.3)
+            replace.text("Reading in city data...")
+            time.sleep(0.3)
+            replace.text("Transforming data...")
+            time.sleep(0.3)
+            replace.text('Mapping property...')
+            time.sleep(0.3)
+            
+
 
             prop_map.columns = ['Unnamed: 0_x', 'Unnamed: 0.1_x', 'id', 'buyerId', 'importDate',
                 'taxId', 'mailId', 'name', 'hasPhone', 'hasEmail', 'isEntity',
@@ -191,8 +192,8 @@ if check_password():
                 city_addresses = prop_map['address'].values
                 recommendations = ShallowMatchEuclid(city_addresses[index])
                 recommendations = pd.DataFrame(recommendations)
-                recommendations.columns = ['Investor Name', 'City', 'State', 'Contact', 'Euclidean Distance']
-                st.dataframe(recommendations)
+                recommendations.columns = ['Investor Name', 'City', 'State', 'Contact', 'Euclid Distance']
+                st.dataframe(recommendations, height=210)
 
     #### PyDeck Viz Mapping ###
 
@@ -219,6 +220,10 @@ if check_password():
                     layers=[layer],
                     initial_view_state=view_state,
                 ))
+        
+        replace.text('Recommendations, Map, & Analysis ready...')
+        time.sleep(0.5)
+        replace.empty()
     #### Market Features ###
         with col_2:
             #print("Transforming data...")
@@ -244,7 +249,6 @@ if check_password():
                 st.subheader('Market Features')
                 time.sleep(1.5)
                 tab1, tab2, tab3 = st.tabs(["Market Scoring", "Median Home Values", "Recent Sales"])
-                
                 with tab1:
                     st.subheader(':blue[Buyer/Seller Market Indicator]')
 
@@ -271,12 +275,12 @@ if check_password():
 
                 with tab2:
                     st.write(':blue[Median Localized Home Values]')
-                    median_values = pd.read_csv('./data/Median_Values.csv')
+                    median_values = pd.read_csv('https://storage.googleapis.com/crec_data/Median_Values.csv')
                     st.dataframe(median_values.style.set_precision(2))
 
                 with tab3:
                     st.write(':blue[**Nearby Recent Sales**]')
-                    recent_sales = pd.read_csv('./data/Recent_Sales.csv')
+                    recent_sales = pd.read_csv('https://storage.googleapis.com/crec_data/Recent_Sales.csv')
                     recent_sales = pd.DataFrame(recent_sales)
                     recent_sales.columns = ['MLS Transaction', 'Address', 'Owner', 'Sale Date', 'Sale Price']
                     st.dataframe(recent_sales.style.set_precision(2))
