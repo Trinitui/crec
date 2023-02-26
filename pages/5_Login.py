@@ -174,6 +174,9 @@ if check_password():
             time.sleep(0.3)
             replace.text('Mapping property...')
             time.sleep(0.3)
+            replace.text('Recommendations, Map, & Analysis ready...')
+            time.sleep(0.5)
+            replace.empty()
             
 
 
@@ -185,6 +188,8 @@ if check_password():
                 'txn_count', 'test', 'OwnerCity', 'OwnerState', 'Unnamed: 0_y',
                 'Unnamed: 0.1_y', 'id_y', 'recs', 'situs_y', 'zip_y', 'state_y',
                 'address', 'city', 'location']
+
+
 
             with hc.HyLoader('',hc.Loaders.standard_loaders,index=5):
                 st.subheader('Investor Recommendations')
@@ -221,9 +226,7 @@ if check_password():
                     initial_view_state=view_state,
                 ))
         
-        replace.text('Recommendations, Map, & Analysis ready...')
-        time.sleep(0.5)
-        replace.empty()
+
     #### Market Features ###
         with col_2:
             #print("Transforming data...")
